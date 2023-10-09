@@ -1,0 +1,832 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "1.0.1",
+
+    "title": "Swagger kgt-express",
+    "description": "API documentation for kgt-express"
+  },
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "servers": [
+    {
+      "url": "http://localhost:3000/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authorization endpoints"
+    },
+    {
+      "name": "Tasks",
+      "description": "Tasks endpoints"
+    },
+    {
+      "name": "Project",
+      "description": "Project endpoints"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Registration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration endpoints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "409": {
+            "description": "Email in use"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login",
+        "requestBody": {
+          "description": "Login's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a user object + accessToken + refreshToken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Email or password is wrong"
+          },
+          "404": {
+            "description": "Email or password is wrong"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refresh token",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "Refresh token",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns accessToken + refreshToken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized"
+          },
+          "403": {
+            "description": "accessToken invalid",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": " "
+          },
+          "401": {
+            "description": "Not authorized"
+          }
+        }
+      }
+    },
+    "/auth/current": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "User current",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns information about the User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized"
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get tasks",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": ["new", "in-process", "completed"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tasks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Tasks"],
+        "summary": "Adds task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TasksRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tasks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Not authorized"
+          }
+        }
+      }
+    },
+    "/tasks/{taskId}": {
+      "patch": {
+        "tags": ["Tasks"],
+        "summary": "Update task",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "taskId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "Update task fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TasksUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update task fields info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tasks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/tasks/{taskId}/status": {
+      "patch": {
+        "tags": ["Tasks"],
+        "summary": "Update task status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "taskId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "Update task status fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TasksStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update task fields status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tasks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "delete": {
+        "tags": ["Tasks"],
+        "summary": "Delete task by authorized user",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete success"
+          },
+          "400": {
+            "description": "This task is not yours"
+          },
+          "401": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "There is no such id"
+          }
+        }
+      }
+    },
+    "/projects": {
+      "post": {
+        "tags": ["Project"],
+        "summary": "Add project",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Return add project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required field"
+          },
+          "401": {
+            "description": "Not authorized"
+          }
+        }
+      }
+    },
+    "/projects/addtask/{taskId}/{projectId}": {
+      "post": {
+        "tags": ["Project"],
+        "summary": "Add task to project",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "taskId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Add success"
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectsResponse"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "integer",
+            "minLength": 6,
+            "maxLength": 16,
+            "pattern": " ^ ^ (?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,16}) $",
+            "example": "qWerty12345"
+          }
+        }
+      },
+      "RegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "example": {
+          "id": "6463738424c0812f33a0a3e3",
+          "email": "Test@example.com"
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectsResponse"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tasks"
+            }
+          }
+        },
+        "example": {
+          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDYzNzM4NDI0YzA4MTJmMzNhMGEzZTMiLCJzZXNzaW9uS2V5IjoiNzdkZmZlNzctMTk0OS00Y2E3LWFlNjMtMjY2NTI5NjYzOTEwIiwiaWF0IjoxNjg0MjM5MzY0LCJleHAiOjE2ODQ0MTkzNjR9.Ejnv8vNIRUPyhyb4Sspt5OKYbT-5tSoGbxAoVHSOxnI",
+          "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDYzNzM4NDI0YzA4MTJmMzNhMGEzZTMiLCJzZXNzaW9uS2V5IjoiNzdkZmZlNzctMTk0OS00Y2E3LWFlNjMtMjY2NTI5NjYzOTEwIiwiaWF0IjoxNjg0MjM5MzY0LCJleHAiOjE4NjQyMzkzNjR9.e6nyxd_k0OC7jUBHL_JHKcbCtymvmu4f8ihJWWtBipk",
+          "id": "6463738424c0812f33a0a3e3",
+          "email": "Test@example.com",
+          "projects": [
+            {
+              "_id": "6523a3a2f76e47b52e53167d",
+              "title": "string",
+              "description": "string",
+              "owner": "65239982f67a069299af94c0",
+              "tasks": [],
+              "createdAt": "2023-10-09T06:54:26.932Z",
+              "updatedAt": "2023-10-09T07:18:23.183Z"
+            }
+          ],
+          "tasks": [
+            {
+              "_id": "6523aaf0abd373ffcf11f049",
+              "title": "string",
+              "description": "string",
+              "owner": "65239982f67a069299af94c0",
+              "project": [],
+              "createdAt": "2023-10-09T07:25:36.880Z",
+              "updatedAt": "2023-10-09T07:28:41.101Z"
+            }
+          ]
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDYzNzM4NDI0YzA4MTJmMzNhMGEzZTMiLCJzZXNzaW9uS2V5IjoiNzdkZmZlNzctMTk0OS00Y2E3LWFlNjMtMjY2NTI5NjYzOTEwIiwiaWF0IjoxNjg0MjM5MzY0LCJleHAiOjE4NjQyMzkzNjR9.e6nyxd_k0OC7jUBHL_JHKcbCtymvmu4f8ihJWWtBipk"
+          }
+        }
+      },
+      "RefreshResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDYzNzM4NDI0YzA4MTJmMzNhMGEzZTMiLCJzZXNzaW9uS2V5IjoiNzdkZmZlNzctMTk0OS00Y2E3LWFlNjMtMjY2NTI5NjYzOTEwIiwiaWF0IjoxNjg0MjM5MzY0LCJleHAiOjE2ODQ0MTkzNjR9.Ejnv8vNIRUPyhyb4Sspt5OKYbT-5tSoGbxAoVHSOxnI",
+          "refreshToken": "yyJhdfgGciOiJIUzI1NiIdfggh5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDYzNzM4NDI0YzA4MTJmMzNhMGEzZTMiLCJzZXNzaW9uS2V5IjoiNzdkZmZlNzctMTk0OS00Y2E3LWFlNjMtMjY2NTI5NjYzOTEwIiwiaWF0IjoxNjg0MjM5MzY0LCJleHAiOjE4NjQyMzkzNjR9.e6nyxd_k0OC7jUBHL_JHKcbCtymvmu4f8ihJWvvbbbnnk"
+        }
+      },
+      "LogoutRequest": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "6453bbe29b2611f1d181cb07"
+          }
+        }
+      },
+      "CurrentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectsResponse"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tasks"
+            }
+          }
+        },
+        "example": {
+          "id": "6463738424c0812f33a0a3e3",
+          "email": "Test@example.com",
+          "projects": [
+            {
+              "_id": "6523a3a2f76e47b52e53167d",
+              "title": "string",
+              "description": "string",
+              "owner": "65239982f67a069299af94c0",
+              "tasks": [],
+              "createdAt": "2023-10-09T06:54:26.932Z",
+              "updatedAt": "2023-10-09T07:18:23.183Z"
+            }
+          ],
+          "tasks": [
+            {
+              "_id": "6523aaf0abd373ffcf11f049",
+              "title": "string",
+              "description": "string",
+              "owner": "65239982f67a069299af94c0",
+              "project": [],
+              "createdAt": "2023-10-09T07:25:36.880Z",
+              "updatedAt": "2023-10-09T07:28:41.101Z"
+            }
+          ]
+        }
+      },
+      "TasksRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 150
+          }
+        }
+      },
+      "TasksUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 150
+          }
+        }
+      },
+      "TasksStatusRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["new", "in-process", "completed"],
+            "example": "new"
+          }
+        }
+      },
+      "ProjectsRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 16
+          },
+          "description": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 150
+          }
+        }
+      },
+      "ProjectsResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 16
+          },
+          "description": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 150
+          },
+          "owner": {
+            "type": "string"
+          },
+          "_id": {
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tasks"
+            }
+          }
+        },
+        "example": {
+          "title": "Clean",
+          "description": "Bathrom",
+          "owner": "6463738424c0812f33a0a3e3",
+          "_id": "646385d424c0812f33a0aae4"
+        }
+      },
+      "Tasks": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "Clean"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 150,
+            "example": "Bathroom"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["new", "in-process", "completed"],
+            "example": "new"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectsResponse"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
